@@ -12,6 +12,7 @@ class AuthCheck {
             req.token = bearerToken;
             
             const user = decodeToken(bearerToken);
+            
             req.user = user;
             return next();
         }
