@@ -131,7 +131,95 @@ class UserServices {
         } catch (error) {
             return handleResponse(res, 500, "Some error occured");
         }
+    };
+
+    static async resetPassword (req,res) {
+        const { toekn, userId } = req.query;
+        const { password } = req.body; 
+
+        try {
+            let user = await Users.findOne({
+                passwordResetToken:token,
+                _id: userId,
+            });
+            if(!user) {
+                return handleResponse(res,401, "Password reset link my have expired");
+            }
+            const salt = await bcrypt.genSalt(10);
+
+            const newPassword = await bcrypt.hash(password, salt);
+
+            await Users.findOneAndUpdate(
+                { _id:userId },
+                {
+                    $set: {
+                        password:newPassword,
+                        passwordResetRequired:false,
+                        passwordResetToken:null
+                    },
+                    new:true,
+                    upsert:true
+                }
+
+            );
+
+            const newToken = generateToken({
+                email:user._doc.email,
+                role:user._doc.role,
+                passwordResetRequired:user._id.passwordResetRequired,
+                password:null,
+
+            });
+
+            return handleResponse(res,200, "PAssword reset successful", {
+                user:{
+                    ...user._doc,
+                    passwordResetExpires:false,
+                    password:null
+                },
+                token:newToken,
+            });
+        } catch (error) {
+             return handleResponse(res,500,"Some error occured");
+        }
+
+    };
+
+
+    static async changePassword(req,res) {
+      const { oldPassword, password } = req.body;
+
+      try {
+          let  user = await Users.findOne({ email:req.user.email });
+          if(!user) {
+              return handleResponse(res, 401, "Invalid Credentails");
+          };
+
+          const isMatch = await bcrypt.compare(oldPassword, user.password);
+          if(!isMatch) {
+              return handleResponse(res, 401, "invalid Credentials");
+          };
+
+          const salt = await bcrypt.genSalt(10);
+
+          let newPassword = await bcrypt.hash(password, salt);
+
+          await Users.findOneAndUpdate(
+              { email:req.user.email },
+              { $set: { passowrd:newPassword }, new:true, upsert:true }
+          );
+
+          return handleResponse(res, 200, "Changed your password successfully", {
+              ...user._doc,
+              password:undefined,
+          });
+
+      } catch (error) {
+           return handleResponse(res, 500, "Some error occured")
+      }
     }
 
 
 }
+
+export default UserServices
