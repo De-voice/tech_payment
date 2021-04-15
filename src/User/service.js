@@ -88,7 +88,7 @@ class UserServices {
     }
 
 
-    static forgotPassword(req,res){
+    static async forgotPassword(req,res){
         const { email } = req.body;
         try {
             let user = await Users.findOne({ email });

@@ -2,7 +2,7 @@ import express from "express";
 import logger from "morgan";
 import mongoose from  "mongoose";
 import  dotenv from "dotenv";
-import routes from "./route"
+import route from "./User/endpoints"
 
 dotenv.config();
 mongoose.connect(
@@ -21,14 +21,14 @@ db.once("open", () => {
 	console.log("Database connected");
 })
 const app = express();
-const port = 8080;
+
 
 app.use(logger("dev"))
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(routes);
+app.use(route);
 
-const port = parseInt(process.env.PORT, 10 || 8080)
+const port = parseInt(process.env.PORT || 8080)
 app.set("port", port);
 
 app.listen(port, () => {
