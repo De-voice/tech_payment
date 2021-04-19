@@ -2,7 +2,7 @@ import express from "express";
 import logger from "morgan";
 import mongoose from  "mongoose";
 import  dotenv from "dotenv";
-import route from "./User/endpoints"
+import route from "./route"
 
 dotenv.config();
 mongoose.connect(
@@ -24,9 +24,11 @@ const app = express();
 
 
 app.use(logger("dev"))
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(route);
+
 
 const port = parseInt(process.env.PORT || 8080)
 app.set("port", port);

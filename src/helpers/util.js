@@ -4,7 +4,7 @@ import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
 
 export const handleResponse = (res, statusCode, message, data, token) => {
-  res.status(statusCode).json({
+   res.status(statusCode).json({
       message,
       data,
       token,

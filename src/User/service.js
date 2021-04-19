@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt"
 import { generateToken, handleResponse } from  "../helpers/util";
 import Users from "../User/user_model";
 
@@ -40,6 +40,7 @@ class UserServices {
     };
 
     static async registerUser(req,res) {
+        
           try {
               const {
                   full_name,
@@ -56,7 +57,7 @@ class UserServices {
                   passwordResetExpires
               } = req.body
 
-              const user = new Users({
+              const user = new Users ({
                         full_name,
                         title,
                         description,
@@ -70,20 +71,24 @@ class UserServices {
                         passwordResetToken,
                         passwordResetExpires,
 				});
-            
+
+          
                 const salt = await bcrypt.genSalt(10);
 
                 user.password = await bcrypt.hash(password, salt);
 
+
+  console.log(user);
                 await user.save();
                 
-                let token = generateToken({ ...user._doc});
-                res.status(200).json({
+                let token = generateToken({ ...user._doc });
+
+              res.status(200).json({
                     user: {...user._doc, token}
                 });
 
           } catch (error) {
-              res.status(500).json({ error });
+             res.status(500).json({ error });
           }
     }
 
